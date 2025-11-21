@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { loginUser, googleLogin } from "../../firebase/auth"; 
+import { useNavigate } from 'react-router-dom';
+import { loginUser, googleLogin } from "../../firebase/auth";
 
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-zinc-600 dark:text-zinc-400">
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -43,7 +44,7 @@ export default function Login() {
     try {
       await loginUser(email, password);
       alert("Login Successful!");
-      // redirect: window.location.href = "/home"
+      window.location.href = '/';
     } catch (err) {
       setError(err.message);
     }
@@ -56,6 +57,7 @@ export default function Login() {
     try {
       await googleLogin();
       alert("Google Login Success!");
+      window.location.href = '/';
     } catch (err) {
       setError(err.message);
     }
