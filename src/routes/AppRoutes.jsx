@@ -26,6 +26,7 @@ const AppRoutes = () => {
           This captures the User ID and Note ID from the URL 
           Example: domain.com/shared/user123/note456 
       */}
+      <Route path="/shared" element={<SharedNoteView />} />
       <Route path="/shared/:userId/:noteId" element={<SharedNoteView />} />
 
     </Routes>
