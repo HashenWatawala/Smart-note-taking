@@ -1,20 +1,29 @@
-// src/components/navbar/Navbar.jsx
-
-'use client';
-
 import React, { useState, useEffect } from 'react';
+// IMPT: Update the import for the correct location if you change the file structure
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import useNetworkStatus from '../../hooks/useNetworkStatus';
+import { useAuth } from '../../hooks/useAuth'; // Get the hook from your hooks folder
 
-// --- Icon & Utility Components (Simplified) ---
-
+// --- Icon Components (No changes) ---
 const UserIcon = ({ size = 20, ...props }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
 const HomeIcon = ({ size = 20, ...props }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
 const ShareIcon = ({ size = 20, ...props }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M16 6l-4-4-4 4" /><line x1="12" y1="2" x2="12" y2="17" /></svg>;
+
+const LogoutIcon = ({ size = 20, ...props }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+);
+
 const OnlineIcon = ({ size = 20, isOnline = true, ...props }) => (
-    <div className={`flex items-center gap-1 text-sm font-medium ${isOnline ? 'text-green-400' : 'text-yellow-400'}`} {...props}>
+    <div className={`flex items-center gap-1 text-sm font-medium ${isOnline ? 'text-green-400' : 'text-red-500'}`} {...props}>
         <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h.01" /><path d="M8.5 16h7" /><path d="M5 12h14" /></svg>
         <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
     </div>
 );
+
 const ThemeIcon = ({ size = 20, isDark, ...props }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         {isDark ? (
@@ -24,6 +33,7 @@ const ThemeIcon = ({ size = 20, isDark, ...props }) => (
         )}
     </svg>
 );
+
 const SmartNotesLogo = ({ theme }) => (
     <div className="flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400">
@@ -35,6 +45,7 @@ const SmartNotesLogo = ({ theme }) => (
         <span className={`font-semibold text-xl tracking-wide ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>SmartNotes</span>
     </div>
 );
+
 const Button = React.forwardRef(({ className = '', variant = 'ghost', size = 'icon', theme = 'dark', children, ...props }, ref) => {
     const Comp = 'button';
     const baseClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:opacity-50";
@@ -55,53 +66,57 @@ Button.displayName = 'Button';
 
 export function Navbar() {
     const [theme, setTheme] = useState('dark');
-    const [isOnline, setIsOnline] = useState(true);
-    const [activeTab, setActiveTab] = useState('my-notes');
+    const isOnline = useNetworkStatus();
+    
+    // 1. Destructure 'signOut' and 'currentUser' from auth context
+    const { signOut, currentUser } = useAuth(); 
+    
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    // Theme effect and mock network status hook remain the same
     useEffect(() => {
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(theme);
         localStorage.setItem('theme', theme);
     }, [theme]);
-    useEffect(() => {
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
 
-    // Theme-dependent glass classes
+    const handleLogout = async () => {
+        try {
+            if (signOut) {
+                await signOut(); 
+                console.log("User successfully signed out.");
+            }
+            navigate('/signin'); 
+        } catch (error) {
+            console.error("Sign out failed:", error);
+        }
+    };
+
     const glassClasses = theme === 'dark'
         ? 'bg-gray-900/50 border-gray-700/50 backdrop-blur-md' 
         : 'bg-white/70 border-gray-300/80 backdrop-blur-sm'; 
 
-    // Helper for navigation links
-    const NavLink = ({ tabKey, Icon, label, disabled = false, className = '' }) => {
-        const isActive = activeTab === tabKey;
+    const NavLink = ({ to, Icon, label, className = '' }) => {
+        const isActive = to === '/' 
+            ? location.pathname === '/' 
+            : location.pathname.startsWith(to);
+        
         const base = theme === 'dark' ? 'text-gray-400 hover:text-white hover:bg-gray-800/70' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/70';
         const active = theme === 'dark' ? 'bg-gray-700/70 border-indigo-500 text-white' : 'bg-gray-200/70 border-indigo-600 text-gray-900';
         const inactive = 'border-transparent';
-        const disabledClasses = 'opacity-50 cursor-not-allowed';
 
         return (
-            <button
-                onClick={() => !disabled && setActiveTab(tabKey)}
-                disabled={disabled}
+            <Link 
+                to={to} 
                 className={`
                     flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 border-b-2
                     ${isActive ? active : base + ' ' + inactive}
-                    ${disabled ? disabledClasses : ''}
                     ${className}
                 `}
             >
                 <Icon size={16} />
                 {label}
-            </button>
+            </Link>
         );
     };
 
@@ -109,80 +124,63 @@ export function Navbar() {
         <header className={`fixed top-0 left-0 w-full z-20 border-b shadow-lg transition-colors ${glassClasses}`}>
             <div className="flex h-16 items-center justify-between px-4 lg:px-6">
                 
-                {/* --- Left Section: Logo & Main Navigation --- */}
                 <div className="flex items-center gap-8">
-                    {/* Logo */}
-                    <a href="/home" className="flex-shrink-0">
+                    <Link to="/" className="flex-shrink-0">
                         <SmartNotesLogo theme={theme} />
-                    </a>
+                    </Link>
 
-                    {/* *** RESPONSIVE CHANGE HERE ***
-                        Navigation Tabs are visible only on screens >= sm (640px)
-                    */}
                     <nav className="hidden sm:flex h-full items-center">
-                        <NavLink 
-                            tabKey="my-notes" 
-                            Icon={HomeIcon} 
-                            label="My Notes" 
-                        />
-                        <NavLink 
-                            tabKey="shared-notes" 
-                            Icon={ShareIcon} 
-                            label="Shared Notes" 
-                            disabled={activeTab !== 'my-notes'}
-                        />
+                        <NavLink to="/" Icon={HomeIcon} label="My Notes" />
+                        <NavLink to="/shared" Icon={ShareIcon} label="Shared Notes" />
                     </nav>
                 </div>
 
-                {/* --- Right Section: Status & User Controls --- */}
-                <div className="flex items-center gap-2 sm:gap-4"> {/* Reduced gap on small screens */}
-                    
-                    {/* Online Status Indicator (Text hidden on mobile) */}
+                <div className="flex items-center gap-2 sm:gap-4">
                     <OnlineIcon isOnline={isOnline} size={18} />
 
-                    {/* Theme Toggle */}
                     <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        theme={theme}
+                        variant="ghost" size="icon" theme={theme}
                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        className={`size-9 ${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
-                        title={`Toggle to ${theme === 'dark' ? 'light' : 'dark'} mode`}
                     >
                         <ThemeIcon isDark={theme === 'dark'} size={20} />
                     </Button>
 
-                    {/* User Profile Icon */}
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        theme={theme}
-                        className={`size-9 ${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
-                    >
-                        <UserIcon size={20} />
-                    </Button>
+                    {currentUser ? (
+                        <>
+                            <Link to="/">
+                                <Button variant="ghost" size="icon" theme={theme} title="Profile">
+                                    <UserIcon size={20} />
+                                </Button>
+                            </Link>
+
+                            {/* Logout Button now calls the correct handler */}
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                theme={theme} 
+                                onClick={handleLogout}
+                                title="Sign Out"
+                                className="text-red-400 hover:text-red-500 hover:bg-red-500/10" 
+                            >
+                                <LogoutIcon size={20} />
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/signin">
+                                <Button variant="ghost" size="icon" theme={theme} title="Sign In">
+                                    <UserIcon size={20} />
+                                </Button>
+                            </Link>
+                        </>
+                    )}
 
                 </div>
             </div>
             
-            {/* *** RESPONSIVE CHANGE HERE ***
-                Mobile Navigation (Displayed ONLY on small screens) 
-                This bar includes the hidden tabs stacked horizontally.
-            */}
             <nav className={`sm:hidden flex justify-around border-t ${theme === 'dark' ? 'border-gray-700/50' : 'border-gray-300/80'} py-1`}>
-                <NavLink 
-                    tabKey="my-notes" 
-                    Icon={HomeIcon} 
-                    label="My Notes"
-                    className="flex-1 justify-center" // Center the content
-                />
-                <NavLink 
-                    tabKey="shared-notes" 
-                    Icon={ShareIcon} 
-                    label="Shared Notes" 
-                    disabled={activeTab !== 'my-notes'}
-                    className="flex-1 justify-center" // Center the content
-                />
+                <NavLink to="/" Icon={HomeIcon} label="My Notes" className="flex-1 justify-center" />
+                <NavLink to="/shared" Icon={ShareIcon} label="Shared Notes" className="flex-1 justify-center" />
             </nav>
         </header>
     );
