@@ -1,16 +1,61 @@
-# React + Vite
+# Smart Note
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Smart Note is a modern, offline-first note-taking web application built with React and Vite. It allows users to create, edit, delete, and search notes locally using IndexedDB. Users can also sign in with Firebase Authentication to sync and share notes via public links backed by Firebase Realtime Database.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Create, edit, and delete notes locally with instant updates
+- Search notes with real-time filtering
+- Share notes via generated public URLs after signing in
+- Offline-first experience with IndexedDB local storage
+- Sync notes with Firebase Realtime Database for sharing
+- User authentication with Firebase Authentication
+- Responsive UI with light and dark themes using TailwindCSS
+- Smooth modal-based note editor and note cards grid layout
 
-## React Compiler
+## Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite for fast development and bundling
+- Firebase (Authentication & Realtime Database)
+- IndexedDB for offline local storage
+- TailwindCSS for styling and themes
+- React Router for routing
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd smart-note
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Usage
+
+- Start the development server with hot reloading:
+  ```bash
+  npm run dev
+  ```
+
+- Build the production-ready files:
+  ```bash
+  npm run build
+  ```
+
+- Preview the production build locally:
+  ```bash
+  npm run preview
+  ```
+
+## Contributing
+
+Contributions are welcome! Please open issues or pull requests to suggest improvements or report bugs.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
